@@ -36,6 +36,7 @@ from IPython.utils.traitlets import (
     Integer,
     Unicode,
 )
+from IPython.html.services.contents.filemanager import FileContentsManager
 from IPython.html.services.contents.manager import ContentsManager
 
 from six import text_type
@@ -163,6 +164,13 @@ class PostgresContentsManager(ContentsManager):
         help="Maximum size in bytes of a file that will be saved.",
     )
 
+    file_manager_class = Type(
+        default_value=FileContentsManager,
+        klass=ContentsManager,
+        config=True,
+        help="ContentsManager subclass to use for loading files from disk.",
+    )
+
     engine = Instance(Engine)
 
     def _engine_default(self):
@@ -171,6 +179,13 @@ class PostgresContentsManager(ContentsManager):
     def __init__(self, *args, **kwargs):
         super(PostgresContentsManager, self).__init__(*args, **kwargs)
         self.ensure_user()
+        self.init_configurables()
+
+    def init_configurables(self):
+        self.file_manager = self.file_manager_class(
+            parent=self,
+            log=self.log,
+        )
 
     def ensure_user(self):
         with self.engine.begin() as db:
