@@ -296,6 +296,7 @@ def _file_default_fields():
         files.c.name,
         files.c.created_at,
         files.c.parent_name,
+        files.c.source_nb_id
     ]
 
 
@@ -445,7 +446,7 @@ def check_content(content, max_size_bytes):
         raise FileTooLarge()
 
 
-def save_file(db, user_id, path, content, max_size_bytes):
+def save_file(db, user_id, path, content, max_size_bytes, source_nb_id=None):
     """
     Save a file.
 
@@ -461,6 +462,7 @@ def save_file(db, user_id, path, content, max_size_bytes):
                     user_id=user_id,
                     parent_name=directory,
                     content=content,
+                    source_nb_id=source_nb_id
                 )
             )
         except IntegrityError as error:

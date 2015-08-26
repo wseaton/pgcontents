@@ -177,6 +177,10 @@ class PostgresContentsManager(PostgresManagerMixin, ContentsManager):
         model = base_model(path)
         model['type'] = 'notebook'
         model['last_modified'] = model['created'] = record['created_at']
+
+        if 'source_nb_id' in record:
+            model['source_nb_id'] = record['source_nb_id']
+
         if content:
             content = reads_base64(record['content'])
             self.mark_trusted_cells(content, path)
@@ -245,6 +249,7 @@ class PostgresContentsManager(PostgresManagerMixin, ContentsManager):
         model = base_model(path)
         model['type'] = 'file'
         model['last_modified'] = model['created'] = record['created_at']
+
         if content:
             bcontent = record['content']
             model['content'], model['format'], model['mimetype'] = from_b64(
@@ -275,12 +280,16 @@ class PostgresContentsManager(PostgresManagerMixin, ContentsManager):
         """
         nb_contents = from_dict(model['content'])
         self.check_and_sign(nb_contents, path)
+        source_nb_id = model['source_nb_id'] if \
+            'source_nb_id' in model else None
+
         save_file(
             db,
             self.user_id,
             path,
             writes_base64(nb_contents),
             self.max_file_size_bytes,
+            source_nb_id=source_nb_id
         )
         # It's awkward that this writes to the model instead of returning.
         self.validate_notebook_model(model)

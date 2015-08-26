@@ -129,6 +129,7 @@ files = Table(
         nullable=False,
     ),
     Column('parent_name', FilePath, nullable=False),
+    Column('source_nb_id', Unicode(), nullable=True),
     Column('content', LargeBinary(100000), nullable=False),
     Column(
         'created_at',

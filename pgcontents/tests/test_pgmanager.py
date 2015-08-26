@@ -121,6 +121,22 @@ class PostgresContentsManagerTestCase(TestContentsManager):
         renamed = cm.get(new_path)
         self.assertGreater(renamed['last_modified'], saved['last_modified'])
 
+    def test_save_cloned_nb (self):
+        cm = self.contents_manager
+
+        # Create a new notebook.
+        nb, name, path = self.new_notebook()
+        model = cm.get(path)
+
+        # import pdb
+        # pdb.set_trace()
+        model['source_nb_id'] = "12345"
+        cm.save(model, path)
+
+        # Reload the notebook and verify that cloned_from_id persisted.
+        saved = cm.get(path)
+        self.assertEqual(saved['source_nb_id'], model['source_nb_id'])
+
     def test_rename_directory(self):
         """
         Create a directory hierarchy that looks like:
