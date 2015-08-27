@@ -20,6 +20,8 @@ from __future__ import unicode_literals
 from base64 import b64encode
 from itertools import combinations
 
+from IPython.nbformat.v4 import new_notebook as new_notebook_content
+from IPython.utils import tz
 from IPython.html.services.contents.tests.test_manager import TestContentsManager  # noqa
 
 from pgcontents.pgmanager import PostgresContentsManager
@@ -124,16 +126,24 @@ class PostgresContentsManagerTestCase(TestContentsManager):
     def test_save_cloned_nb (self):
         cm = self.contents_manager
 
-        # Create a new notebook.
-        nb, name, path = self.new_notebook()
-        model = cm.get(path)
-
-        # import pdb
-        # pdb.set_trace()
-        model['source_nb_id'] = "12345"
+        # Create a new notebook and set the source_nb_id field
+        path = "test_source_nb_id.ipynb"
+        last_modified = created = tz.utcnow()
+        model = {
+            'name': path,
+            'path': path,
+            'type': 'notebook',
+            'last_modified': last_modified,
+            'created': created,
+            'format': 'json',
+            'mimetype': None,
+            'writable': True,
+            'content': new_notebook_content(),
+            'source_nb_id': "12345"
+        }
         cm.save(model, path)
 
-        # Reload the notebook and verify that cloned_from_id persisted.
+        # Reload the notebook and verify that source_nb_id persisted.
         saved = cm.get(path)
         self.assertEqual(saved['source_nb_id'], model['source_nb_id'])
 
