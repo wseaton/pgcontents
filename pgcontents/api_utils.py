@@ -19,7 +19,7 @@ NBFORMAT_VERSION = 4
 
 # We don't currently track created/modified dates for directories, so this
 # value is always used instead.
-DUMMY_CREATED_DATE = datetime.fromtimestamp(0)
+DUMMY_CREATED_DATE = datetime.now()
 
 
 def base_model(path):
